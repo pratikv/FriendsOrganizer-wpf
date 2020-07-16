@@ -21,7 +21,9 @@ namespace FriendsOrganizer.UI.Data.Repositories
         public async Task<Friend> GetByIdAsync(int friendId)
         {
             {
-                return await _context.Friends.SingleAsync(s => s.Id == friendId);
+                return await _context.Friends
+                    .Include(f => f.PhoneNumbers)
+                    .SingleAsync(s => s.Id == friendId);
             }
         }
 
@@ -43,6 +45,11 @@ namespace FriendsOrganizer.UI.Data.Repositories
         public void Remove(Friend friend)
         {
             _context.Friends.Remove(friend);
+        }
+
+        public void RemovePhoneNumber(FriendPhoneNumber model)
+        {
+            _context.FriendPhoneNumbers.Remove(model);
         }
     }
 }

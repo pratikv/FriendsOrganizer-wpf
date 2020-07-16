@@ -21,6 +21,16 @@ namespace FriendsOrganizer.DataAccess.Migrations
                 new Friend() {FirstName = "Bruce", LastName = "Wayne"},
                 new Friend() {FirstName = "Clark", LastName = "Kent"}
             );
+
+            context.ProgrammingLanguages.AddOrUpdate(pl => pl.Name,
+                new ProgrammingLanguage{Name = "C#"},
+                new ProgrammingLanguage(){Name = "C"},
+                new ProgrammingLanguage(){Name = "JS"});
+
+            context.SaveChanges();
+            context.FriendPhoneNumbers.AddOrUpdate(number => number.Number,
+                new FriendPhoneNumber(){Number = "+91 1234567890", FriendId = context.Friends.First().Id});
+
         }
     }
 }

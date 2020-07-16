@@ -33,16 +33,19 @@ namespace FriendsOrganizer.UI.Wrapper
         public string LastName
         {
             get => GetValue<string>();
-            set
-            {
-                SetValue(value);
-            }
+            set => SetValue(value);
         }
 
         public string Email
         {
             get => GetValue<string>();
-            set { SetValue(value); }
+            set => SetValue(value);
+        }
+
+        public int? FavouriteLanguageId
+        {
+            get => GetValue<int?>();
+            set => SetValue(value);
         }
 
         protected override IEnumerable<string> ValidateProperty(string propertyName)
@@ -102,5 +105,18 @@ namespace FriendsOrganizer.UI.Wrapper
 
         }
 
+    }
+
+    public class FriendPhoneNumberWrapper : ModelWrapper<FriendPhoneNumber>
+    {
+        public FriendPhoneNumberWrapper(FriendPhoneNumber model) : base(model)
+        {
+        }
+
+        public string Number
+        {
+            get => GetValue<string>();
+            set => SetValue(value);
+        }
     }
 }
