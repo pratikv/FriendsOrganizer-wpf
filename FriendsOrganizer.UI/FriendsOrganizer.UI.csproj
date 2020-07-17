@@ -75,9 +75,9 @@
     <Compile Include="Data\Repositories\IFriendRepository.cs" />
     <Compile Include="Data\Lookups\IFriendLookupDataService.cs" />
     <Compile Include="Data\Lookups\LookupDataService.cs" />
-    <Compile Include="Event\AfterFriendDeletedEvent.cs" />
-    <Compile Include="Event\AfterFriendSavedEvent.cs" />
-    <Compile Include="Event\OpenFriendDetailViewEvent.cs" />
+    <Compile Include="Event\AfterDetailDeletedEvent.cs" />
+    <Compile Include="Event\AfterDetailSavedEvent.cs" />
+    <Compile Include="Event\OpenDetailViewEvent.cs" />
     <Compile Include="Startup\BootStrapper.cs" />
     <Compile Include="ViewModels\FriendDetailViewModel.cs" />
     <Compile Include="ViewModels\IFriendDetailViewModel.cs" />

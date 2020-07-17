@@ -3,13 +3,18 @@ using FriendsOrganizer.Model;
 
 namespace FriendsOrganizer.UI.Data.Repositories
 {
-    public interface IFriendRepository
+    public interface IGenericRepository<T>
     {
-        Task<Friend> GetByIdAsync(int friendId);
+        Task<T> GetByIdAsync(int id);
         Task SaveAsync();
         bool HasChanges();
-        void Add(Friend friend);
-        void Remove(Friend friend);
+        void Add(T model);
+        void Remove(T model);
+    }
+
+
+    public interface IFriendRepository : IGenericRepository<Friend>
+    {
         void RemovePhoneNumber(FriendPhoneNumber model);
     }
 }

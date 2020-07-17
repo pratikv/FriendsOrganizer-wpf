@@ -6,50 +6,61 @@ using FriendsOrganizer.DataAccess;
 
 namespace FriendsOrganizer.UI.Data.Repositories
 {
-    /// <summary>
-    /// Description of FriendRepository.
-    /// </summary>
-    public class FriendRepository : IFriendRepository
-    {
-        private readonly FriendsOrganizerDbContext _context;
 
-        public FriendRepository(FriendsOrganizerDbContext context)
+    public class GenericRepository<TEntity, TContext> : IGenericRepository<TEntity>
+    where TContext : DbContext
+    where TEntity: class
+    {
+        protected readonly TContext Context;
+
+        protected GenericRepository(TContext context)
         {
-            _context = context;
+            Context = context;
         }
 
-        public async Task<Friend> GetByIdAsync(int friendId)
+        public virtual async Task<TEntity> GetByIdAsync(int id)
         {
-            {
-                return await _context.Friends
-                    .Include(f => f.PhoneNumbers)
-                    .SingleAsync(s => s.Id == friendId);
-            }
+            return await Context.Set<TEntity>().FindAsync(id);
         }
 
         public async Task SaveAsync()
         {
-            await _context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         public bool HasChanges()
         {
-            return _context.ChangeTracker.HasChanges();
+            return Context.ChangeTracker.HasChanges();
         }
 
-        public void Add(Friend friend)
+        public void Add(TEntity model)
         {
-            _context.Friends.Add(friend);
+            Context.Set<TEntity>().Add(model);
         }
 
-        public void Remove(Friend friend)
+        public void Remove(TEntity model)
         {
-            _context.Friends.Remove(friend);
+            Context.Set<TEntity>().Remove(model);
+        }
+    }
+
+    public class FriendRepository : GenericRepository<Friend, FriendsOrganizerDbContext>, IFriendRepository
+    {
+        public FriendRepository(FriendsOrganizerDbContext context)
+            :base(context)
+        {
+        }
+
+        public override async Task<Friend> GetByIdAsync(int friendId)
+        {
+            return await Context.Friends
+                .Include(f => f.PhoneNumbers)
+                .SingleAsync(s => s.Id == friendId);
         }
 
         public void RemovePhoneNumber(FriendPhoneNumber model)
         {
-            _context.FriendPhoneNumbers.Remove(model);
+            Context.FriendPhoneNumbers.Remove(model);
         }
     }
 }
