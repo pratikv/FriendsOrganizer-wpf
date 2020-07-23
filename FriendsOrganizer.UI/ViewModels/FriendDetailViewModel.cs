@@ -20,7 +20,6 @@ namespace FriendsOrganizer.UI.ViewModels
         #region Fields
 
         private readonly IFriendRepository _friendRepository;
-        private readonly IMessageDialogService _messageDialogService;
         private readonly IProgrammingLanguageLookupDataService _programmingLanguageLookupDataService;
         private FriendWrapper _friend;
         private FriendPhoneNumberWrapper _selectedPhoneNumber;
@@ -28,14 +27,13 @@ namespace FriendsOrganizer.UI.ViewModels
         #endregion
 
         public FriendDetailViewModel(
-            IFriendRepository friendRepository, 
+            IFriendRepository friendRepository,
             IEventAggregator eventAggregator,
             IMessageDialogService messageDialogService,
             IProgrammingLanguageLookupDataService programmingLanguageLookupDataService)
-        :base(eventAggregator)
+            : base(eventAggregator,messageDialogService)
         {
             _friendRepository = friendRepository;
-            _messageDialogService = messageDialogService;
             _programmingLanguageLookupDataService = programmingLanguageLookupDataService;
             AddPhoneNumberCommand = new DelegateCommand(OnAddPhoneNumberExecute);
             RemovePhoneNumberCommand = new DelegateCommand(OnRemovePhoneNumberExecute, OnRemovePhoneNumberCanExecute);
@@ -55,7 +53,7 @@ namespace FriendsOrganizer.UI.ViewModels
             PhoneNumbers.Remove(SelectedPhoneNumber);
             SelectedPhoneNumber = null;
             HasChanges = _friendRepository.HasChanges();
-            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            ((DelegateCommand) SaveCommand).RaiseCanExecuteChanged();
         }
 
         private void OnAddPhoneNumberExecute()
@@ -78,12 +76,13 @@ namespace FriendsOrganizer.UI.ViewModels
             }
         }
 
-        public ObservableCollection<LookupItem> ProgrammingLanguages { get;  }
+        public ObservableCollection<LookupItem> ProgrammingLanguages { get; }
         public ObservableCollection<FriendPhoneNumberWrapper> PhoneNumbers { get; }
 
-        public override async Task LoadAsync(int? id)
+        public override async Task LoadAsync(int id)
         {
-            var friend = id.HasValue ? await _friendRepository.GetByIdAsync(id.Value) : CreateNewFriend();
+            var friend = id > 0 ? await _friendRepository.GetByIdAsync(id) : CreateNewFriend();
+            Id = id;
             InitializeFriend(friend);
             InitializeFriendPhoneNumbers(friend.PhoneNumbers);
             await LoadProgrammingLanguagesAsync();
@@ -95,6 +94,7 @@ namespace FriendsOrganizer.UI.ViewModels
             {
                 wrapper.PropertyChanged -= FriendPhoneNumberWrapper_PropertyChanged;
             }
+
             PhoneNumbers.Clear();
             foreach (var friendPhoneNumber in friendPhoneNumbers)
             {
@@ -121,6 +121,12 @@ namespace FriendsOrganizer.UI.ViewModels
 
         protected override async void OnDeleteExecute()
         {
+            if (await _friendRepository.HasMeetingsAsync(Friend.Id))
+            {
+                _messageDialogService.ShowInfoDialog("Is part of a meeting. Cannot delete");
+                return;
+            }
+
             var result = _messageDialogService.ShowOkCancelDialog("Are you sure you want to delete?", "Question");
             if (result == MessageDialogResult.Ok)
             {
@@ -132,8 +138,8 @@ namespace FriendsOrganizer.UI.ViewModels
 
         protected override bool OnSaveCanExecute()
         {
-            return Friend!=null 
-                   && !Friend.HasErrors 
+            return Friend != null
+                   && !Friend.HasErrors
                    && PhoneNumbers.All(pn => !pn.HasErrors)
                    && HasChanges;
         }
@@ -142,6 +148,7 @@ namespace FriendsOrganizer.UI.ViewModels
         {
             await _friendRepository.SaveAsync();
             HasChanges = _friendRepository.HasChanges();
+            Id = Friend.Id;
             RaiseDetailSavedEvent(Friend.Id, Friend.FirstName);
         }
 
@@ -159,18 +166,29 @@ namespace FriendsOrganizer.UI.ViewModels
                 {
                     ((DelegateCommand) SaveCommand).RaiseCanExecuteChanged();
                 }
+
+                if (args.PropertyName == nameof(Friend.FirstName) || args.PropertyName == nameof(Friend.LastName))
+                {
+                    SetTitle();
+                }
             };
             ((DelegateCommand) SaveCommand).RaiseCanExecuteChanged();
             if (Friend.Id == 0)
             {
                 Friend.FirstName = "";
             }
+            SetTitle();
+        }
+
+        private void SetTitle()
+        {
+            Title = $"{Friend.FirstName} {Friend.LastName}";
         }
 
         private async Task LoadProgrammingLanguagesAsync()
         {
             ProgrammingLanguages.Clear();
-            ProgrammingLanguages.Add(new NullLookupItem(){DisplayMember = " - "});
+            ProgrammingLanguages.Add(new NullLookupItem() {DisplayMember = " - "});
             var lookup = await _programmingLanguageLookupDataService.GetProgrammingLanguageLookupAsync();
             foreach (var lookupItem in lookup)
             {
@@ -189,7 +207,7 @@ namespace FriendsOrganizer.UI.ViewModels
 
         public FriendWrapper Friend
         {
-            get => _friend;
+            get { return _friend; }
             set
             {
                 _friend = value;

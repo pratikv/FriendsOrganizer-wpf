@@ -16,6 +16,7 @@ namespace FriendsOrganizer.UI.View.Services
     public interface IMessageDialogService
     {
         MessageDialogResult ShowOkCancelDialog(string text, string title);
+        void ShowInfoDialog(string text);
     }
 
     public class MessageDialogService : IMessageDialogService
@@ -24,6 +25,11 @@ namespace FriendsOrganizer.UI.View.Services
         {
             var result = MessageBox.Show(text, title, MessageBoxButton.OKCancel);
             return result == MessageBoxResult.OK ? MessageDialogResult.Ok : MessageDialogResult.Cancel;
+        }
+
+        public void ShowInfoDialog(string text)
+        {
+            MessageBox.Show(text);
         }
     }
 }

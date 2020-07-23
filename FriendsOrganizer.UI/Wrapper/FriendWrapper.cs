@@ -13,7 +13,7 @@ namespace FriendsOrganizer.UI.Wrapper
     public class FriendWrapper : ModelWrapper<Friend>
     {
         public FriendWrapper(Friend model)
-            :base(model)
+            : base(model)
         {
 
         }
@@ -119,4 +119,51 @@ namespace FriendsOrganizer.UI.Wrapper
             set => SetValue(value);
         }
     }
+
+    public class MeetingWrapper : ModelWrapper<Meeting>
+    {
+        public MeetingWrapper(Meeting model) : base(model)
+        {
+        }
+
+        public int Id
+        {
+            get { return Model.Id; }
+        }
+
+        public string Title
+        {
+            get { return GetValue<string>(); }
+            set { SetValue(value); }
+        }
+
+        public DateTime DateFrom
+        {
+            get => GetValue<DateTime>();
+            set
+            {
+                SetValue(value);
+                if (DateTo < DateFrom)
+                {
+                    DateTo = DateFrom;
+                }
+            }
+        }
+
+        public DateTime DateTo
+        {
+            get => GetValue<DateTime>();
+            set
+            {
+                SetValue(value);
+                if (DateTo < DateFrom)
+                {
+                    DateFrom = DateTo;
+                }
+            }
+        }
+    }
+
+
+
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
+using System.Linq;
 using System.Threading.Tasks;
 using FriendsOrganizer.Model;
 using FriendsOrganizer.DataAccess;
@@ -44,6 +46,40 @@ namespace FriendsOrganizer.UI.Data.Repositories
         }
     }
 
+    public interface IMeetingRepository : IGenericRepository<Meeting>
+    {
+        Task<List<Friend>> GetAllFriendsAsync();
+        Task ReloadFriendAsync(int id);
+    }
+
+    public class MeetingRepository: GenericRepository<Meeting, FriendsOrganizerDbContext>, IMeetingRepository
+    {
+        public MeetingRepository(FriendsOrganizerDbContext context) : base(context)
+        {
+        }
+
+        public override async Task<Meeting> GetByIdAsync(int id)
+        {
+            return await Context.Meetings
+                .Include(m=>m.Friends)
+                .SingleAsync(m => m.Id == id);
+        }
+
+        public async Task<List<Friend>> GetAllFriendsAsync()
+        {
+            return await Context.Set<Friend>().ToListAsync();
+        }
+
+        public async Task ReloadFriendAsync(int id)
+        {
+            var dbEntity = Context.ChangeTracker.Entries<Friend>().SingleOrDefault(db => db.Entity.Id == id);
+            if (dbEntity != null)
+            {
+                await dbEntity.ReloadAsync();
+            }
+        }
+    }
+
     public class FriendRepository : GenericRepository<Friend, FriendsOrganizerDbContext>, IFriendRepository
     {
         public FriendRepository(FriendsOrganizerDbContext context)
@@ -61,6 +97,12 @@ namespace FriendsOrganizer.UI.Data.Repositories
         public void RemovePhoneNumber(FriendPhoneNumber model)
         {
             Context.FriendPhoneNumbers.Remove(model);
+        }
+
+        public async Task<bool> HasMeetingsAsync(int friendId)
+        {
+            return await Context.Meetings.AsNoTracking().Include(m => m.Friends)
+                .AnyAsync(m => m.Friends.Any(f => f.Id == friendId));
         }
     }
 }

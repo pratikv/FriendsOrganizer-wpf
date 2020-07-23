@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FriendsOrganizer.Model;
 
 namespace FriendsOrganizer.DataAccess.Migrations
@@ -17,7 +18,7 @@ namespace FriendsOrganizer.DataAccess.Migrations
         protected override void Seed(FriendsOrganizer.DataAccess.FriendsOrganizerDbContext context)
         {
             context.Friends.AddOrUpdate(f => f.FirstName,
-                new Friend() {FirstName = "Pratk", LastName = "Vakil"},
+                new Friend() {FirstName = "Pratik", LastName = "Vakil"},
                 new Friend() {FirstName = "Bruce", LastName = "Wayne"},
                 new Friend() {FirstName = "Clark", LastName = "Kent"}
             );
@@ -29,7 +30,20 @@ namespace FriendsOrganizer.DataAccess.Migrations
 
             context.SaveChanges();
             context.FriendPhoneNumbers.AddOrUpdate(number => number.Number,
-                new FriendPhoneNumber(){Number = "+91 1234567890", FriendId = context.Friends.First().Id});
+                new FriendPhoneNumber() {Number = "+91 1234567890", FriendId = context.Friends.First().Id});
+
+            context.Meetings.AddOrUpdate(m => m.Title,
+                new Meeting()
+                {
+                    Title = "Watching Soccer",
+                    DateFrom = new DateTime(2018,5,26),
+                    DateTo = new DateTime(2018,5,26),
+                    Friends = new List<Friend>()
+                    {
+                        context.Friends.Single(f => f.FirstName == "Bruce" && f.LastName == "Wayne"),
+                        context.Friends.Single(f => f.FirstName == "Clark" && f.LastName == "Kent"),
+                    }
+                });
 
         }
     }

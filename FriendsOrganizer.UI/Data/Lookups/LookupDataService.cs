@@ -13,7 +13,12 @@ namespace FriendsOrganizer.UI.Data
         Task<IEnumerable<LookupItem>> GetProgrammingLanguageLookupAsync();
     }
 
-    public class LookupDataService : IFriendLookupDataService, IProgrammingLanguageLookupDataService
+    public interface IMeetingLookupDataService
+    {
+        Task<IEnumerable<LookupItem>> GetMeetingLookupAsync();
+    }
+
+    public class LookupDataService : IFriendLookupDataService, IProgrammingLanguageLookupDataService, IMeetingLookupDataService
     {
         private readonly Func<FriendsOrganizerDbContext> _context;
 
@@ -45,6 +50,20 @@ namespace FriendsOrganizer.UI.Data
                         Id = s.Id,
                         DisplayMember = s.Name
                     }).ToListAsync();
+            }
+        }
+
+        public async Task<IEnumerable<LookupItem>> GetMeetingLookupAsync()
+        {
+            using (var ctx = _context())
+            {
+                return await ctx.Meetings.AsNoTracking()
+                    .Select(m =>
+                        new LookupItem()
+                        {
+                            Id = m.Id,
+                            DisplayMember = m.Title
+                        }).ToListAsync();
             }
         }
 
