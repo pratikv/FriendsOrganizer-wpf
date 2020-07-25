@@ -44,6 +44,12 @@ namespace FriendsOrganizer.UI.Data.Repositories
         {
             Context.Set<TEntity>().Remove(model);
         }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        {
+            return await Context.Set<TEntity>().ToListAsync();
+        }
+
     }
 
     public interface IMeetingRepository : IGenericRepository<Meeting>
@@ -103,6 +109,25 @@ namespace FriendsOrganizer.UI.Data.Repositories
         {
             return await Context.Meetings.AsNoTracking().Include(m => m.Friends)
                 .AnyAsync(m => m.Friends.Any(f => f.Id == friendId));
+        }
+    }
+
+    public interface IProgrammingLanguageRepository : IGenericRepository<ProgrammingLanguage>
+    {
+        Task<bool> IsReferencedByFriendAsync(int programmingLanguageId);
+    }
+
+    public class ProgrammingLanguageRepository
+        : GenericRepository<ProgrammingLanguage, FriendsOrganizerDbContext>, IProgrammingLanguageRepository
+    {
+        public ProgrammingLanguageRepository(FriendsOrganizerDbContext context) : base(context)
+        {
+        }
+
+        public async Task<bool> IsReferencedByFriendAsync(int programmingLanguageId)
+        {
+            return await Context.Friends.AsNoTracking()
+                .AnyAsync(f => f.FavouriteLanguageId == programmingLanguageId);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using FriendsOrganizer.Model;
 
 namespace FriendsOrganizer.UI.Wrapper
 {
@@ -62,6 +63,30 @@ namespace FriendsOrganizer.UI.Wrapper
         protected virtual IEnumerable<string> ValidateProperty(string propertyName)
         {
             return null;
+        }
+    }
+
+    public class ProgrammingLanguageWrapper : ModelWrapper<ProgrammingLanguage>
+    {
+        public ProgrammingLanguageWrapper(ProgrammingLanguage model) : base(model)
+        {
+        }
+
+        public int Id
+        {
+            get { return Model.Id; }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return GetValue<string>();
+            }
+            set
+            {
+                SetValue(value);
+            }
         }
     }
 }

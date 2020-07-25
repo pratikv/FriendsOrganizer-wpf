@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using FriendsOrganizer.Model;
 
 namespace FriendsOrganizer.UI.Data.Repositories
@@ -6,6 +7,7 @@ namespace FriendsOrganizer.UI.Data.Repositories
     public interface IGenericRepository<T>
     {
         Task<T> GetByIdAsync(int id);
+        Task<IEnumerable<T>> GetAllAsync();
         Task SaveAsync();
         bool HasChanges();
         void Add(T model);
