@@ -105,19 +105,20 @@ namespace FriendsOrganizer.UI.ViewModels
             var detailViewModel = DetailViewModels
                 .SingleOrDefault(vm => vm.Id == args.Id
                                        && vm.GetType().Name == args.ViewModelName);
-            //if (SelectedDetailViewModel != null && SelectedDetailViewModel.HasChanges)
-            //{
-            //    var res = this._messageDialog.ShowOkCancelDialog("You have made changes. Navigate away?", "Question");
-            //    if (res == MessageDialogResult.Ok)
-            //    {
-            //        return;
-            //    }
-            //}
-
+            
             if (detailViewModel == null)
             {
                 detailViewModel = _detailViewModelCreator[args.ViewModelName];
-                await detailViewModel.LoadAsync(args.Id);
+                try
+                {
+                    await detailViewModel.LoadAsync(args.Id);
+                }
+                catch
+                {
+                    _messageDialog.ShowInfoDialog("Could not load entity");
+                    await NavigationViewModel.LoadAsync();
+                    return;
+                }
                 DetailViewModels.Add(detailViewModel);
             }
 

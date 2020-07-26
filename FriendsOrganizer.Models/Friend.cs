@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 
 namespace FriendsOrganizer.Model
 {
@@ -28,8 +29,13 @@ namespace FriendsOrganizer.Model
         public int? FavouriteLanguageId { get; set; }
         public ProgrammingLanguage FavouriteLanguage { get; set; }
 
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+
         public ICollection<FriendPhoneNumber> PhoneNumbers { get; set; }
         public ICollection<Meeting> Meetings { get; set; }
+
+
     }
 
     public class LookupItem

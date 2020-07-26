@@ -1,5 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -124,6 +126,40 @@ namespace FriendsOrganizer.UI.ViewModels
                 ViewModelName = this.GetType().Name
             });
         }
+
+        protected async Task SaveWithOptimisticConcurrencyAsync(Func<Task> saveFunc, Action afterSaveAction)
+        {
+            try
+            {
+                await saveFunc();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var dbVals = ex.Entries.Single().GetDatabaseValues();
+                if (dbVals == null)
+                {
+                    _messageDialogService.ShowInfoDialog("The entity has been deleted by another user");
+                    RaiseDetailDeletedEvent(Id);
+                    return;
+                }
+                var result = _messageDialogService.ShowOkCancelDialog(
+                    "The entity has been changed by someone else. Click OK to save your changes anyway.", "Question");
+                if (result == MessageDialogResult.Ok)
+                {
+                    var entry = ex.Entries.Single();
+                    entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                    await saveFunc();
+                }
+                else
+                {
+                    await ex.Entries.Single().ReloadAsync();
+                    await LoadAsync(Id);
+                }
+            }
+
+            afterSaveAction();
+        }
+
     }
 
     public class ProgrammingLanguageDetailViewModel : DetailViewModelBase
