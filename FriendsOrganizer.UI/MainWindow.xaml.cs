@@ -13,13 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using FriendsOrganizer.UI.ViewModels;
+using MahApps.Metro.Controls;
 
 namespace FriendsOrganizer.UI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         MainViewModel viewModel;
 

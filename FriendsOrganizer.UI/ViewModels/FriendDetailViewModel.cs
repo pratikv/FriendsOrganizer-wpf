@@ -136,11 +136,11 @@ namespace FriendsOrganizer.UI.ViewModels
         {
             if (await _friendRepository.HasMeetingsAsync(Friend.Id))
             {
-                _messageDialogService.ShowInfoDialog("Is part of a meeting. Cannot delete");
+                await _messageDialogService.ShowInfoDialogAsync("Is part of a meeting. Cannot delete");
                 return;
             }
 
-            var result = _messageDialogService.ShowOkCancelDialog("Are you sure you want to delete?", "Question");
+            var result = await _messageDialogService.ShowOkCancelDialogAsync("Are you sure you want to delete?", "Question");
             if (result == MessageDialogResult.Ok)
             {
                 _friendRepository.Remove(Friend.Model);

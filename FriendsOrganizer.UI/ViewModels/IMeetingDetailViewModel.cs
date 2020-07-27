@@ -131,16 +131,16 @@ namespace FriendsOrganizer.UI.ViewModels
             set { _meeting = value; OnPropertyChanged(); }
         }
 
-        protected override void OnDeleteExecute()
+        protected override async void OnDeleteExecute()
         {
             var result =
-                _messageDialogService.ShowOkCancelDialog($"Do you really want to delete the meeting?", "Question");
+                await _messageDialogService.ShowOkCancelDialogAsync($"Do you really want to delete the meeting?", "Question");
             if (result == MessageDialogResult.Cancel)
             {
                 return;
             }
             _meetingRepository.Remove(Meeting.Model);
-            _meetingRepository.SaveAsync();
+            await _meetingRepository.SaveAsync();
             RaiseDetailDeletedEvent(Meeting.Id);
         }
 

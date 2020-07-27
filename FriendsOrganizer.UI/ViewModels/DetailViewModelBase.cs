@@ -33,11 +33,11 @@ namespace FriendsOrganizer.UI.ViewModels
             CloseDetailViewCommand = new DelegateCommand(OnCloseDetailViewExecute);
         }
 
-        protected virtual void OnCloseDetailViewExecute()
+        protected virtual async void OnCloseDetailViewExecute()
         {
             if (HasChanges)
             {
-                var result = _messageDialogService.ShowOkCancelDialog(
+                var result = await _messageDialogService.ShowOkCancelDialogAsync(
                     "You have some unsaved changes. Are you sure, you want to close?", 
                     "Question"
                     );
@@ -138,11 +138,11 @@ namespace FriendsOrganizer.UI.ViewModels
                 var dbVals = ex.Entries.Single().GetDatabaseValues();
                 if (dbVals == null)
                 {
-                    _messageDialogService.ShowInfoDialog("The entity has been deleted by another user");
+                    await _messageDialogService.ShowInfoDialogAsync("The entity has been deleted by another user");
                     RaiseDetailDeletedEvent(Id);
                     return;
                 }
-                var result = _messageDialogService.ShowOkCancelDialog(
+                var result = await _messageDialogService.ShowOkCancelDialogAsync(
                     "The entity has been changed by someone else. Click OK to save your changes anyway.", "Question");
                 if (result == MessageDialogResult.Ok)
                 {
@@ -204,7 +204,7 @@ namespace FriendsOrganizer.UI.ViewModels
             var isReferenced = await _programmingLanguageRepository.IsReferencedByFriendAsync(SelectedProgrammingLanguage.Id);
             if (isReferenced)
             {
-                _messageDialogService.ShowInfoDialog("Selected Langugage is favorite for one of the friends. Cannot Delete");
+                await _messageDialogService.ShowInfoDialogAsync("Selected Langugage is favorite for one of the friends. Cannot Delete");
                 return;
             }
 
